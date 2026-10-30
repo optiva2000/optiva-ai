@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optiva AI Studio - استوديو إدارة وتدريب موظف الجودة الذكي</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Cairo', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-100/70 text-slate-800 min-h-screen flex flex-col antialiased select-none">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-5 left-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Top Application Bar -->
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        
+        <!-- Logo & Brand Window Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-md shadow-emerald-500/30">
+            O
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-black text-lg text-white tracking-tight">Optiva AI Studio</span>
+              <span class="text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-full">مركز القيادة والتدريب</span>
+            </div>
+            <p class="text-xs text-slate-400">إدارة وتدريب موظف الجودة وسلامة الغذاء للمطاعم (Meta & WhatsApp)</p>
+          </div>
+        </div>
+
+        <!-- Live Server Status & Quick Actions -->
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 border border-slate-700 text-emerald-400 px-3 py-1.5 rounded-full text-xs font-semibold">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>الموظف متصل ويراقب ميتا وواتساب 24/7</span>
+          </div>
+
+          <button id="headerManagerBtn" class="bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-slate-950 text-xs font-black px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5">
+            <span>👑 أوامر المدير</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col gap-6">
+
+    <!-- Top Window Tabs (Segmented Control) -->
+    <nav class="bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-sm flex gap-1.5 overflow-x-auto" aria-label="Tabs">
+      
+      <button class="nav-tab active-tab flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-white bg-slate-900 shadow transition-all" data-target="dashboardTab">
+        <span>📊</span>
+        <span>الرئيسية والمبيعات</span>
+      </button>
+
+      <button class="nav-tab flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all border border-amber-300/40 bg-amber-50/30" data-target="managerTab">
+        <span>👑</span>
+        <span class="text-amber-900 font-extrabold">محادثة وأوامر المدير</span>
+        <span class="bg-amber-400 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-black">جديد</span>
+      </button>
+
+      <button class="nav-tab flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all" data-target="strategyTab">
+        <span>🎯</span>
+        <span>تخطيط الحملات</span>
+      </button>
+
+      <button class="nav-tab flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all" data-target="trainingTab">
+        <span>🎓</span>
+        <span>مركز تدريب الموظف</span>
+      </button>
+
+      <button class="nav-tab flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all" data-target="chatTab">
+        <span>💬</span>
+        <span>شات محاكاة العملاء</span>
+      </button>
+
+      <button class="nav-tab flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all" data-target="socialTab">
+        <span>📱</span>
+        <span>ميتا (FB & Insta)</span>
+      </button>
+
+      <button class="nav-tab flex-1 min-w-[130px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all" data-target="settingsTab">
+        <span>⚙️</span>
+        <span>المفاتيح والربط</span>
+      </button>
+    </nav>
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: DASHBOARD & OVERVIEW -->
+    <!-- ================================================================= -->
+    <section id="dashboardTab" class="tab-content flex flex-col gap-6">
+      
+      <!-- Top Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-xs font-bold text-slate-400">تارجت المطاعم المتعاقدة</span>
+              <h3 class="text-2xl font-black text-slate-900 mt-1"><span id="metricClosedDeals">5</span> / <span id="metricTargetDeals">15</span></h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
+              🎯
+            </div>
+          </div>
+          <div class="mt-4">
+            <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+              <span>نسبة الإنجاز</span>
+              <span id="metricDealsPct" class="text-emerald-600">33.3%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+              <div id="metricDealsBar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 33.3%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-xs font-bold text-slate-400">الإيرادات المحققة</span>
+              <h3 class="text-2xl font-black text-slate-900 mt-1"><span id="metricTotalRevenue">22,500</span> <span class="text-xs font-normal text-slate-400">ج.م</span></h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg">
+              💰
+            </div>
+          </div>
+          <div class="mt-4 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2 font-semibold">
+            <span>التارجت المستهدف:</span>
+            <span class="font-bold text-slate-800">67,500 ج.م</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-xs font-bold text-slate-400">إجمالي ليدز المطاعم</span>
+              <h3 class="text-2xl font-black text-slate-900 mt-1"><span id="metricTotalLeads">28</span> <span class="text-xs font-normal text-slate-400">مطعم</span></h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">
+              👥
+            </div>
+          </div>
+          <div class="mt-4 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2 font-semibold">
+            <span>واتساب: <strong class="text-emerald-600">19</strong></span>
+            <span>ميتا (FB & Insta): <strong class="text-blue-600">9</strong></span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-xs font-bold text-slate-400">إشعارات المدير الفورية</span>
+              <h3 class="text-2xl font-black text-slate-900 mt-1"><span>مفعلة</span> <span class="text-xs font-normal text-emerald-600">24/7</span></h3>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-lg">
+              📲
+            </div>
+          </div>
+          <div class="mt-4 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-2 font-semibold">
+            <span>التنبيه على:</span>
+            <span class="font-bold text-slate-800" id="dashAdminPhoneDisplay">رقم واتسابك الشخصي</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pipeline Funnel & Channel Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h4 class="font-bold text-slate-900 text-base">مراحل خط المبيعات لشركة أوبتيفا (Sales Funnel)</h4>
+              <p class="text-xs text-slate-400 mt-0.5">تطور حالة التفاوض مع أصحاب ومديري المطاعم</p>
+            </div>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">تحديث فوري</span>
+          </div>
+
+          <div class="space-y-3.5 my-auto">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-700">1. استفسار أولي واستكشاف (NEW)</span>
+                <span class="text-slate-500">28 مطعم (100%)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                <div class="bg-slate-400 h-full w-full rounded-full"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-700">2. مؤهلين وتحديد نوع المطعم والفروع (QUALIFIED)</span>
+                <span class="text-slate-500">20 مطعم (71%)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                <div class="bg-blue-500 h-full rounded-full" style="width: 71%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-700">3. تقديم باقة تدقيق الجودة (OFFER_SENT - 4,500 ج.م)</span>
+                <span class="text-slate-500">14 مطعم (50%)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                <div class="bg-indigo-500 h-full rounded-full" style="width: 50%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-slate-700">4. حل الاعتراضات وعرض الخصم المحدود (OBJECTION_HANDLING)</span>
+                <span class="text-slate-500">8 مطاعم (28%)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                <div class="bg-amber-500 h-full rounded-full" style="width: 28%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-emerald-700 font-bold">5. تأكيد الحجز وموعد الزيارة (CLOSED_WON) 🎉</span>
+                <span id="funnelWonCount" class="text-emerald-700 font-bold">5 مطاعم متعاقدة</span>
+              </div>
+              <div class="w-full bg-slate-100 h-3.5 rounded-full overflow-hidden p-0.5 bg-emerald-50">
+                <div id="funnelWonBar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 25%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+          <h4 class="font-bold text-slate-900 text-base mb-1">توزيع قنوات المحادثات والتفاعل</h4>
+          <p class="text-xs text-slate-400 mb-4">واتساب • فيسبوك ماسنجر • إنستجرام</p>
+          <div class="relative h-56 w-full flex-1">
+            <canvas id="channelChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: MANAGER COMMAND CONSOLE (غرفة محادثة وأوامر المدير) [NEW!] -->
+    <!-- ================================================================= -->
+    <section id="managerTab" class="tab-content hidden flex-1 flex flex-col">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden min-h-[580px]">
+        
+        <!-- Header -->
+        <div class="p-4 bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white flex justify-between items-center border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-lg shadow-md">
+              👑
+            </div>
+            <div>
+              <h3 class="font-black text-sm text-white flex items-center gap-2">
+                <span>غرفة قيادة وأوامر المدير المباشرة</span>
+                <span class="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.2 rounded font-black">Direct Boss Mode</span>
+              </h3>
+              <p class="text-xs text-slate-300">أنت هنا المدير: أعطِ الموظف أوامر فورية، لقّنه معلومات جديدة، أو اطلب منه أي مهمة وينفذها في ثوانٍ</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full font-bold">الموظف في وضع الاستماع للأوامر</span>
+          </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="managerChatMessages" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-slate-50/70">
+          
+          <!-- System Welcome Message -->
+          <div class="flex flex-col items-start">
+            <div class="bg-white text-slate-800 text-xs sm:text-sm p-4 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] border border-slate-200 space-y-2">
+              <p class="font-bold text-amber-800 flex items-center gap-1.5">
+                <span>👋</span>
+                <span>أهلاً بك يا فندم! أنا جاهز تماماً لتنفيذ أي أمر أو تلقي أي تدريب وتطبيقه فوراً.</span>
+              </p>
+              <p class="text-slate-600 leading-relaxed text-xs">
+                تقدر تديني أوامر زي:
+                <br>• <em>"نزل بوست جديد على فيسبوك وإنستجرام بخصوص أخطاء تخزين اللحوم بالمطاعم"</em>
+                <br>• <em>"لو عميل سأل عن تفتيش هيئة سلامة الغذاء، رد عليه بكذا وكذا"</em>
+                <br>• <em>"لخص لي عدد الصفقات والليدز اللي وصلت النهاردة"</em>
+                <br>• <em>"عدل سعر باقة التدقيق وخليها 5000 ج.م"</em>
+              </p>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 mr-1">الموظف الذكي • وضع الجاهزية</span>
+          </div>
+
+        </div>
+
+        <!-- Quick Manager Commands Chips -->
+        <div class="px-4 py-2.5 bg-white border-t border-slate-200 flex gap-2 overflow-x-auto text-xs">
+          <span class="text-slate-400 font-black whitespace-nowrap self-center">أوامر سريعة بنقرة واحدة:</span>
+          <button class="cmd-chip bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold px-3 py-1 rounded-xl whitespace-nowrap transition-colors" data-cmd="لخص لي حالة المبيعات والتارجت والأرباح المحققة حتى الآن بالتفصيل">"📊 ملخص الصفقات الحالية"</button>
+          <button class="cmd-chip bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold px-3 py-1 rounded-xl whitespace-nowrap transition-colors" data-cmd="صغ وانشر بوست جديد فوراً على فيسبوك وإنستجرام عن تجنب مخالفات الرقابة الصحية بالمطاعم">"📢 انشر بوست جديد على ميتا"</button>
+          <button class="cmd-chip bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold px-3 py-1 rounded-xl whitespace-nowrap transition-colors" data-cmd="لو عميل سألنا عن إمكانية تقسيط باقة فحص الجودة، رد عليه إن متاح التقسيط على دفعتين للمطاعم ذات الفروع المتعددة">"🧠 لقّنه قاعدة رد جديدة (تقسيط)"</button>
+          <button class="cmd-chip bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold px-3 py-1 rounded-xl whitespace-nowrap transition-colors" data-cmd="اعمل فولو اب ومتابعة لكل مديري المطاعم اللي كلمونا في آخر 24 ساعة وما أكدوش الحجز">"🔄 متابعة العملاء المعلقين"</button>
+        </div>
+
+        <!-- Manager Input Bar -->
+        <div class="p-3 bg-white border-t border-slate-200 flex gap-2 items-center">
+          <input type="text" id="managerInput" placeholder="اكتب أمرك أو التعليمات اللي عايز الموظف يتعلمها وينفذها فوراً..." class="flex-1 bg-slate-100 border border-transparent focus:border-amber-500 focus:bg-white text-xs sm:text-sm px-4 py-3 rounded-xl outline-none font-medium transition-all">
+          <button id="sendManagerBtn" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-6 py-3 rounded-xl text-xs transition-colors flex items-center gap-1.5 shadow-md">
+            <span>إصدار الأمر</span>
+            <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: LONG-TERM STRATEGY PLANNER (تخطيط الحملات طويلة الأمد) -->
+    <!-- ================================================================= -->
+    <section id="strategyTab" class="tab-content hidden flex flex-col gap-6">
+      
+      <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 text-white p-6 rounded-3xl shadow-md border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Optiva Long-Term Growth Planner</span>
+            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold">دراسة السوق لقطاع المطاعم</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-black mt-1">تخطيط حملة أوبتيفا طويلة الأمد (يومي • أسبوعي • شهري)</h3>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
+            الموظف الذكي يحلل سلوك ومخاوف ملاك المطاعم، ويقسم التارجت الزمني، ويضع جدول إعلانات السوشيال ميديا متعدد المراحل لتحقيق العائد المستهدف.
+          </p>
+        </div>
+
+        <button id="applyStrategyToSystemBtn" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-5 py-3 rounded-xl transition-all shadow-lg flex items-center gap-2 whitespace-nowrap">
+          <span>🚀 اعتماد الخطة وتفعيلها في النظام</span>
+        </button>
+      </div>
+
+      <!-- Controls: Duration & Target Settings -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
+        <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2 border-b border-slate-100 pb-3">
+          <span>⚙️</span>
+          <span>معطيات وأهداف الحملة الاستراتيجية:</span>
+        </h4>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">المدى الزمني للحملة:</label>
+            <select id="strategyDurationSelect" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-500 font-bold text-slate-800">
+              <option value="30">حملة شهرية (30 يوماً - تارجت مرحلي)</option>
+              <option value="90" selected>حملة ربع سنوية (90 يوماً - نمو وتوسع)</option>
+              <option value="180">حملة نصف سنوية (6 أشهر - ريادة السوق)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">تارجت المطاعم المتعاقدة الإجمالي:</label>
+            <input type="number" id="strategyTargetDealsInput" value="45" min="5" step="5" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-slate-900">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">سعر باقة فحص الجودة (ج.م):</label>
+            <input type="number" id="strategyDealValueInput" value="4500" min="500" step="100" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-slate-900">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">إجمالي ميزانية الإعلانات (ج.م):</label>
+            <input type="number" id="strategyBudgetInput" value="18000" min="1000" step="1000" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-slate-900">
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button id="recalculateStrategyBtn" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition-colors flex items-center gap-1.5">
+            <span>تحديث وتحليل دراسة السوق</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Time-Horizon Target Breakdown: Daily / Weekly / Monthly -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Daily Cadence -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5 mb-3">
+              <h5 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <span>⚡</span>
+                <span>التارجت اليومي (Daily Cadence)</span>
+              </h5>
+              <span class="text-[10px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded-full">كل 24 ساعة</span>
+            </div>
+            
+            <div class="space-y-2.5 text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">محادثات ليدز جديدة:</span>
+                <span id="targetDailyLeads" class="font-black text-slate-900">4 إلى 5 مطاعم</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">ميزانية الإعلان اليومية:</span>
+                <span id="targetDailyBudget" class="font-black text-emerald-700">200 ج.م / يوم</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">سرعة الرد المطلوبة:</span>
+                <span class="font-bold text-slate-800">أقل من دقيقتين (آلي)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">متابعات العملاء (Follow-ups):</span>
+                <span class="font-bold text-slate-800">إعادة تنشيط 3 ليدز معلقة</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl font-medium">
+            💡 مهمة الموظف: الرد على تعليقات البوستات وتحويل مديري المطاعم فوراً لإنبوكس الواتساب.
+          </div>
+        </div>
+
+        <!-- Weekly Milestones -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5 mb-3">
+              <h5 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <span>📅</span>
+                <span>التارجت الأسبوعي (Weekly Targets)</span>
+              </h5>
+              <span class="text-[10px] bg-blue-50 text-blue-700 font-extrabold px-2 py-0.5 rounded-full">كل أسبوع</span>
+            </div>
+            
+            <div class="space-y-2.5 text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">حجوزات تدقيق مؤكدة:</span>
+                <span id="targetWeeklyDeals" class="font-black text-slate-900">3 إلى 4 مطاعم</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">الإيراد الأسبوعي المستهدف:</span>
+                <span id="targetWeeklyRevenue" class="font-black text-emerald-700">15,750 ج.م</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">إجمالي الليدز الأسبوعية:</span>
+                <span id="targetWeeklyLeads" class="font-black text-slate-800">28 إلى 32 مطعم</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">محتوى السوشيال المنشور:</span>
+                <span class="font-bold text-slate-800">4 ريلز + بوستات توعية</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl font-medium">
+            💡 مهمة الموظف: إطلاق عروض الـ Early Bird وتأكيد مواعيد زيارة الاستشاري للويك إند.
+          </div>
+        </div>
+
+        <!-- Monthly Target -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2.5 mb-3">
+              <h5 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <span>🏆</span>
+                <span>التارجت الشهري (Monthly Goals)</span>
+              </h5>
+              <span class="text-[10px] bg-amber-50 text-amber-700 font-extrabold px-2 py-0.5 rounded-full">كل 30 يوماً</span>
+            </div>
+            
+            <div class="space-y-2.5 text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">إجمالي المطاعم المتعاقدة:</span>
+                <span id="targetMonthlyDeals" class="font-black text-slate-900">15 مطعماً</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">الإيراد الشهري المحقق:</span>
+                <span id="targetMonthlyRevenue" class="font-black text-emerald-700">67,500 ج.م</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">تكلفة العميل المستهدفة (CPL):</span>
+                <span id="targetCplEstimate" class="font-black text-slate-800">48.0 ج.م</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 font-medium">العائد على الإعلانات (ROAS):</span>
+                <span class="font-bold text-emerald-600">11.2x ضعف الميزانية</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl font-medium">
+            💡 مهمة الموظف: تقفيل تارجت الـ 15 مطعماً وإرسال التقرير الختامي الشهري للمدير.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 4: AGENT TRAINING STUDIO (مركز تدريب وتلقين الموظف) -->
+    <!-- ================================================================= -->
+    <section id="trainingTab" class="tab-content hidden flex flex-col gap-6">
+      
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white p-6 rounded-3xl shadow-md border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Optiva Training Engine</span>
+          <h3 class="text-xl sm:text-2xl font-black mt-1">مركز تدريب وتلقين الموظف الذكي</h3>
+          <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
+            من هنا تقدر تتحكم في طريقة تفكير الموظف، وتزوده بمعلومات مطاعم أوبتيفا، وتحدد له إزاي يرد على الأسعار، وتصلح له أي رد عشان يتعلم منه فوراً.
+          </p>
+        </div>
+
+        <button id="saveAllTrainingBtn" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs px-5 py-3 rounded-xl transition-all shadow-lg flex items-center gap-2 whitespace-nowrap">
+          <span>💾 اعتماد وتطبيق التدريب</span>
+        </button>
+      </div>
+
+      <!-- Training Grid Layout (3 Pillars) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+          <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <span>🎭</span>
+              <span>شخصية ونبرة الموظف</span>
+            </h4>
+            <span class="text-[10px] bg-slate-100 font-bold px-2 py-0.5 rounded text-slate-600">Persona</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">المسمى الوظيفي والدور:</label>
+            <input type="text" id="trainAgentRole" value="استشاري جودة وسلامة غذاء أول ومسؤول مبيعات في Optiva" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-semibold text-slate-800">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">أسلوب ولهجة الحديث:</label>
+            <select id="trainAgentDialect" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-slate-800">
+              <option value="egyptian_business">مصرية احترافية راقية (مناسبة لأصحاب المطاعم في مصر)</option>
+              <option value="gulf_professional">خليجية بيعية مهذبة (مطاعم السعودية والخليج)</option>
+              <option value="formal_arabic">فصحى راقية وموثوقة</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center text-xs font-bold text-slate-700 mb-1">
+              <span>مستوى الإلحاح البيعي في الإغلاق:</span>
+              <span id="trainUrgencyLabel" class="text-emerald-600 font-extrabold">متوازن وذكي (Balanced)</span>
+            </div>
+            <input type="range" id="trainUrgencySlider" min="1" max="3" value="2" class="w-full accent-emerald-600 cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Objections Playbook -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+          <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <span>🛡️</span>
+              <span>قاموس معالجة الاعتراضات (Playbook)</span>
+            </h4>
+            <span class="text-[10px] bg-slate-100 font-bold px-2 py-0.5 rounded text-slate-600">Objections</span>
+          </div>
+
+          <div class="space-y-3 flex-1 overflow-y-auto max-h-[380px] pr-1" id="objectionsListContainer">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+              <span class="text-xs font-bold text-rose-700">اعتراض: "السعر غالي وميزانيتنا متسمحش"</span>
+              <textarea rows="2" class="w-full text-[11px] bg-white border border-slate-200 rounded-lg p-2 outline-none font-medium">مقدر جداً وجهة نظرك، لكن تكلفة مخالفة واحدة أو إغلاق مؤقت من الرقابة أضعاف تكلفة الفحص، وعشان نشجعكم بنقدملكم خصم 10% لو ثبتنا الميعاد الأسبوع ده.</textarea>
+            </div>
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5">
+              <span class="text-xs font-bold text-rose-700">اعتراض: "الشيف بتاعنا خبرة وفاهم كل حاجة"</span>
+              <textarea rows="2" class="w-full text-[11px] bg-white border border-slate-200 rounded-lg p-2 outline-none font-medium">الشيف الشاطر إضافة كبيرة، وتدقيق أوبتيفا مش بيشكك في خبرته بالعكس، إحنا بنساعده بنظام تدقيق خارجي متوافق مع معايير البلدية وسلامة الغذاء لحمايته والمطعم.</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Knowledge Base -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+          <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <span>📚</span>
+              <span>قاعدة المعرفة والخدمات (Knowledge Base)</span>
+            </h4>
+            <span class="text-[10px] bg-slate-100 font-bold px-2 py-0.5 rounded text-slate-600">Services</span>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">تفاصيل باقة التدقيق الأساسية:</label>
+              <textarea id="trainServiceFeatures" rows="4" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-medium leading-relaxed">• كشف ميداني شامل على مناطق التخزين والتحضير ودرجات حرارة التبريد.
+• تسليم تقرير تحليل الفجوات (Gap Analysis) المعتمد للرقابة الصحية.
+• تدريب عملي لفريق المطبخ على ممارسات الهايجين ومنع التلوث التبادلي.
+• شهادة تأهيل فحص الجودة لتعليقها داخل المطعم.</textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">سعر الجلسة (ج.م):</label>
+                <input type="number" id="trainServicePrice" value="4500" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-slate-900">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">أقصى خصم مسموح:</label>
+                <input type="text" id="trainMaxDiscount" value="10% (450 ج.م)" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-slate-900">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 5: LIVE CLIENT CHAT SIMULATOR (شات محاكاة العملاء) -->
+    <!-- ================================================================= -->
+    <section id="chatTab" class="tab-content hidden flex-1 flex flex-col">
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row flex-1 overflow-hidden min-h-[580px]">
+        
+        <!-- Sidebar Contacts -->
+        <div class="w-full md:w-80 border-b md:border-b-0 md:border-l border-slate-200 flex flex-col bg-slate-50">
+          <div class="p-4 border-b border-slate-200 bg-white">
+            <h3 class="font-bold text-slate-900 text-sm">محادثات المطاعم الواردة</h3>
+            <p class="text-xs text-slate-400">اختر محادثة لتجربة الردود البيعية المباشرة</p>
+          </div>
+
+          <div class="overflow-y-auto flex-1 divide-y divide-slate-100" id="contactsList">
+            <button class="contact-item active-contact w-full text-right p-3.5 hover:bg-slate-100 flex items-center gap-3 transition-colors bg-emerald-50/70 border-r-4 border-emerald-600" data-channel="WhatsApp" data-name="أحمد الشناوي - مدير مطعم كاستلو" data-phone="01099887766">
+              <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">ك</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center">
+                  <h5 class="font-bold text-xs text-slate-900 truncate">أحمد الشناوي (كاستلو)</h5>
+                  <span class="text-[10px] text-slate-400">12:40 م</span>
+                </div>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5">محتاجين نأكد حجز الزيارة للمطعم</p>
+                <div class="flex gap-1.5 mt-1">
+                  <span class="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-bold">واتساب</span>
+                  <span class="text-[9px] bg-emerald-50 text-emerald-600 px-1.5 py-0.2 rounded font-bold">CLOSED_WON</span>
+                </div>
+              </div>
+            </button>
+
+            <button class="contact-item w-full text-right p-3.5 hover:bg-slate-100 flex items-center gap-3 transition-colors border-r-4 border-transparent" data-channel="Instagram DM" data-name="شيف طارق - كافيه أورا" data-phone="Instagram_User_789">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm">ط</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center">
+                  <h5 class="font-bold text-xs text-slate-900 truncate">شيف طارق (أورا)</h5>
+                  <span class="text-[10px] text-slate-400">11:15 ص</span>
+                </div>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5">السعر غالي شوية هل في خصم؟</p>
+                <div class="flex gap-1.5 mt-1">
+                  <span class="text-[9px] bg-pink-100 text-pink-800 px-1.5 py-0.2 rounded font-bold">إنستجرام DM</span>
+                  <span class="text-[9px] bg-amber-50 text-amber-700 px-1.5 py-0.2 rounded font-bold">OBJECTION_HANDLING</span>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Main Area -->
+        <div class="flex-1 flex flex-col bg-slate-100/60">
+          <div class="p-3.5 bg-white border-b border-slate-200 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <div id="chatAvatar" class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">ك</div>
+              <div>
+                <h4 id="chatTitle" class="font-bold text-slate-900 text-sm">أحمد الشناوي - مدير مطعم كاستلو</h4>
+                <div class="flex items-center gap-2">
+                  <span id="chatPlatformBadge" class="text-[10px] font-semibold text-emerald-600">عبر WhatsApp</span>
+                  <span class="text-[10px] text-slate-400">• يتم إرسال إشعار فوري لرقمك بالواتساب</span>
+                </div>
+              </div>
+            </div>
+            <span id="chatCurrentStage" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full">CLOSED_WON 🎉</span>
+          </div>
+
+          <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3">
+            <div class="flex flex-col items-start">
+              <div class="bg-white text-slate-800 text-xs sm:text-sm p-3.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] border border-slate-200">
+                مساء الخير، محتاج أعرف تفاصيل جلسة تدقيق سلامة الغذاء للمطعم وسعرها كام؟
+              </div>
+              <span class="text-[10px] text-slate-400 mt-1 mr-1">12:35 م</span>
+            </div>
+            <div class="flex flex-col items-end">
+              <div class="bg-emerald-600 text-white text-xs sm:text-sm p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%]">
+                أهلاً بحضرتك يا فندم في **أوبتيفا (Optiva)**! 🌟<br>
+                باقة التدقيق الشاملة تشمل كشفاً ميدانياً على المطبخ والمخازن، تسليم تقرير تحليل الفجوات المعتمد للرقابة الصحية، وتدريب فريق الطهاة.<br>
+                قيمة الباقة 4,500 ج.م وشاملة التقرير والمتابعة. تحب ننسق ميعاد الزيارة المناسب للمطعم في وقت خارج ساعات الذروة؟
+              </div>
+              <span class="text-[10px] text-slate-400 mt-1 ml-1">12:36 م • تم الرد آلياً</span>
+            </div>
+          </div>
+
+          <div class="p-3 bg-white border-t border-slate-200 flex gap-2 items-center">
+            <input type="text" id="chatInput" placeholder="اكتب رسالة كأنك مدير مطعم وتفرج على رد الموظف وإشعار الواتساب..." class="flex-1 bg-slate-100 border border-transparent focus:border-emerald-500 focus:bg-white text-xs sm:text-sm px-4 py-2.5 rounded-xl outline-none transition-all">
+            <button id="sendChatBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-colors flex items-center gap-1">
+              <span>إرسال</span>
+              <svg class="w-3.5 h-3.5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 6: FULL META SUITE (Facebook + Instagram Management) -->
+    <!-- ================================================================= -->
+    <section id="socialTab" class="tab-content hidden flex flex-col gap-6">
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-4">
+        
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">إدارة ميتا المتكاملة (Facebook & Instagram Suite)</h3>
+            <p class="text-xs text-slate-400">نشر ومتابعة البوستات، ريلز إنستجرام، والرد التلقائي على التعليقات والـ DMs</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs bg-blue-100 text-blue-900 font-bold px-3 py-1 rounded-xl">📘 فيسبوك</span>
+            <span class="text-xs bg-pink-100 text-pink-900 font-bold px-3 py-1 rounded-xl">📸 إنستجرام (Reels)</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">المنصة المستهدفة للنشر:</label>
+            <select id="postTargetPlatform" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-slate-800">
+              <option value="both">النشر على فيسبوك وإنستجرام معاً (تلقائي)</option>
+              <option value="facebook">صفحة فيسبوك فقط</option>
+              <option value="instagram">إنستجرام فقط (Reels & Feed)</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2 flex items-end">
+            <button id="generateInstagramReelBtn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl transition-all shadow flex items-center justify-center gap-1.5">
+              <span>✨ توليد سكريبت فيديو ريلز إنستجرام وبوست فيسبوك لمطاعم أوبتيفا</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">المحتوى الجاهز للنشر على ميتا:</label>
+          <textarea id="postContentArea" rows="6" class="w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-emerald-500 font-medium leading-relaxed">🚨 غلطة واحدة في سلامة الغذاء كفيلة تقفل مطعمك في دقائق! 🍽️⚠️
+
+التفتيش المفاجئ مش لازم يكون مصدر قلق أو غرامات.. مع **Optiva (أوبتيفا)** بنساعدك تضمن إن مطبخك ماشي على أدق معايير الجودة العالمية.
+
+جلسة تدقيق الجودة وتحليل الفجوات (Gap Analysis) بتشمل:
+🔍 كشف كامل على مناطق التحضير، درجات حرارة التخزين، وفصل الأغذية.
+📋 فحص وتحديث سجلات الرقابة الصحية وملفات العاملين.
+💡 تقرير فوري بكل الملاحظات وطرق حلها قبل زيارة أي جهة تفتيشية.
+👨‍🍳 تدريب سريع وعملي لفريقك على أفضل ممارسات الهايجين وسلامة الغذاء.
+
+💬 احجز جلسة التدقيق لمطعمك الآن واستفد من تقييم أولي مجاني:
+👉 تواصل معنا على رسائل الصفحة، إنستجرام DM، أو واتساب: https://wa.me/201012345678
+
+#أوبتيفا #سلامة_الغذاء #إدارة_الجودة #مطاعم_مصر #كافيهات #Optiva #InstagramReels</textarea>
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <span class="text-xs text-slate-400">سيتم النشر فوراً وتفعيل الرد التلقائي على كل التعليقات والـ DMs.</span>
+          <button id="publishNowBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 px-8 rounded-xl transition-all shadow-md shadow-emerald-600/20 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>نشر الآن على ميتا (فيسبوك وإنستجرام)</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 7: SETTINGS & KEYS -->
+    <!-- ================================================================= -->
+    <section id="settingsTab" class="tab-content hidden flex flex-col gap-6">
+      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm max-w-3xl mx-auto w-full">
+        <h3 class="font-bold text-slate-900 text-lg mb-1">إعدادات ومفاتيح الربط المباشر (API Keys)</h3>
+        <p class="text-xs text-slate-400 mb-6">أدخل مفاتيحك لربط صفحة فيسبوك وإنستجرام ورقم واتساب الحقيقي. يتم الحفظ محلياً في جهازك بأمان.</p>
+
+        <form id="settingsForm" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Key (مفتاح الذكاء الاصطناعي المجاني):</label>
+            <input type="password" id="geminiKeyInput" placeholder="AIzaSy..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-500">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Meta Page ID (فيسبوك):</label>
+              <input type="text" id="metaPageIdInput" placeholder="104829104829104" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Instagram Account ID (إنستجرام):</label>
+              <input type="text" id="instagramIdInput" placeholder="178414058291029" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Meta Access Token:</label>
+              <input type="password" id="metaPageTokenInput" placeholder="EAA..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp Phone Number ID:</label>
+              <input type="text" id="whatsappPhoneIdInput" placeholder="105829102910291" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">WhatsApp Access Token:</label>
+              <input type="password" id="whatsappTokenInput" placeholder="EAA..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <!-- Real-Time Manager WhatsApp Notifications Configuration -->
+          <div class="border-t border-slate-100 pt-4">
+            <h4 class="font-bold text-slate-800 text-xs mb-3 flex items-center gap-1.5">
+              <span>📲</span>
+              <span>إشعارات وتقارير المدير اللحظية على الواتساب (Push Alerts):</span>
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">رقم واتسابك الشخصي أو واتساب بيزنس لاستلام الإشعارات:</label>
+                <input type="text" id="adminPhoneInput" value="201012345678" placeholder="مثال: 201012345678" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold text-emerald-800">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">موعد التقرير اليومي الشامل:</label>
+                <select id="reportTimeSelect" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 outline-none font-bold">
+                  <option value="22:00">الساعة 10:00 مساءً (نهاية اليوم)</option>
+                  <option value="20:00">الساعة 08:00 مساءً</option>
+                  <option value="23:30">الساعة 11:30 مساءً</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-2.5 space-y-1.5 text-xs text-slate-700 font-medium">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>إرسال إشعار فوري لحظي بأي محادثة عميل نشطة على واتساب، ماسنجر، أو إنستجرام DMs.</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>إرسال إشعار فوري بأي تعليق جديد على بوستات وريدز فيسبوك وإنستجرام.</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span>إشعار فوري باحتفال عند إغلاق وتأكيد أي حجز لصفقة جديدة (+4,500 ج.م).</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-4 flex justify-end">
+            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3 px-8 rounded-xl transition-all shadow flex items-center gap-2">
+              <span>حفظ الإعدادات بأمان</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400 mt-auto">
+    Optiva AI Studio • نظام إدارة وتدريب موظف الجودة الذكي لقطاع المطاعم (Meta Suite & WhatsApp) © 2026
+  </footer>
+
+  <!-- Application Logic Scripts -->
+  <script>
+    const appState = {
+      targetDeals: 15,
+      closedDeals: 5,
+      dealValue: 4500,
+      totalRevenue: 22500,
+      totalLeads: 28,
+      currentLeadName: 'أحمد الشناوي - مدير مطعم كاستلو',
+      adminPhone: '201012345678'
+    };
+
+    try {
+      const saved = localStorage.getItem('optiva_studio_state');
+      if (saved) Object.assign(appState, JSON.parse(saved));
+    } catch (e) {}
+
+    function saveState() {
+      try {
+        localStorage.setItem('optiva_studio_state', JSON.stringify(appState));
+      } catch (e) {}
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `p-3.5 rounded-xl shadow-lg text-xs font-bold text-white flex items-center gap-2 transition-all duration-300 transform translate-y-2 pointer-events-auto ${
+        type === 'success' ? 'bg-emerald-600' : 'bg-slate-900'
+      }`;
+      toast.innerHTML = `
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.remove('translate-y-2'), 10);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Tab Navigation
+    const tabs = document.querySelectorAll('.nav-tab');
+    const contents = document.querySelectorAll('.tab-content');
+
+    function switchTab(targetId) {
+      tabs.forEach(tab => {
+        if (tab.dataset.target === targetId) {
+          tab.classList.add('active-tab', 'text-white', 'bg-slate-900');
+          tab.classList.remove('text-slate-600', 'hover:bg-slate-50');
+        } else {
+          tab.classList.remove('active-tab', 'text-white', 'bg-slate-900');
+          tab.classList.add('text-slate-600', 'hover:bg-slate-50');
+        }
+      });
+
+      contents.forEach(content => {
+        if (content.id === targetId) {
+          content.classList.remove('hidden');
+        } else {
+          content.classList.add('hidden');
+        }
+      });
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.target));
+    });
+
+    document.getElementById('headerManagerBtn').addEventListener('click', () => {
+      switchTab('managerTab');
+    });
+
+    // Chart.js initialization
+    let channelChart;
+    function initChart() {
+      const ctx = document.getElementById('channelChart');
+      if (!ctx) return;
+      channelChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['واتساب (WhatsApp)', 'فيسبوك ماسنجر', 'إنستجرام DMs & Reels'],
+          datasets: [{
+            data: [19, 6, 3],
+            backgroundColor: ['#10b981', '#3b82f6', '#ec4899'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Cairo', size: 11 }, padding: 14 } }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    function updateMetricsUI() {
+      document.getElementById('metricClosedDeals').innerText = appState.closedDeals;
+      document.getElementById('metricTargetDeals').innerText = appState.targetDeals;
+      const pct = Math.min(100, Math.round((appState.closedDeals / appState.targetDeals) * 100));
+      document.getElementById('metricDealsPct').innerText = pct + '%';
+      document.getElementById('metricDealsBar').style.width = pct + '%';
+
+      document.getElementById('metricTotalRevenue').innerText = Number(appState.totalRevenue).toLocaleString('en-US');
+      document.getElementById('metricTotalLeads').innerText = appState.totalLeads;
+      document.getElementById('dashAdminPhoneDisplay').innerText = appState.adminPhone || 'مسجل في الإعدادات';
+
+      const wonEl = document.getElementById('funnelWonCount');
+      if (wonEl) wonEl.innerText = `${appState.closedDeals} مطاعم متعاقدة`;
+      const wonBar = document.getElementById('funnelWonBar');
+      if (wonBar) wonBar.style.width = Math.min(100, Math.round((appState.closedDeals / appState.totalLeads) * 100)) + '%';
+    }
+
+    // =========================================================
+    // MANAGER COMMAND CONSOLE LOGIC (غرفة أوامر المدير)
+    // =========================================================
+    const managerInput = document.getElementById('managerInput');
+    const sendManagerBtn = document.getElementById('sendManagerBtn');
+    const managerChatContainer = document.getElementById('managerChatMessages');
+
+    function appendManagerMessage(text, isAi = false) {
+      const wrapper = document.createElement('div');
+      wrapper.className = isAi ? 'flex flex-col items-start' : 'flex flex-col items-end';
+
+      const bubble = document.createElement('div');
+      bubble.className = isAi 
+        ? 'bg-white text-slate-800 text-xs sm:text-sm p-3.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] border border-slate-200 font-medium leading-relaxed'
+        : 'bg-amber-500 text-slate-950 font-bold text-xs sm:text-sm p-3.5 rounded-2xl rounded-tl-none shadow max-w-[85%]';
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
+
+      const meta = document.createElement('span');
+      meta.className = 'text-[10px] text-slate-400 mt-1 ' + (isAi ? 'mr-1' : 'ml-1');
+      const now = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+      meta.innerText = isAi ? `الموظف الذكي • ${now}` : `أنت (المدير) • ${now}`;
+
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(meta);
+      managerChatContainer.appendChild(wrapper);
+      managerChatContainer.scrollTop = managerChatContainer.scrollHeight;
+    }
+
+    function processManagerCommand(cmd) {
+      let reply = '';
+      const c = cmd.toLowerCase();
+
+      if (c.includes('بوست') || c.includes('انشر') || c.includes('نزل')) {
+        reply = 'أمرك يا فندم! تم تجهيز وصياغة البوست المطلوب لسلامة الغذاء ونشره على فيسبوك وإنستجرام بصفحة أوبتيفا فوراً، وجاري مراقبة أي تفاعل وارد عليه وإشعارك به.';
+        showToast('🚀 الموظف قام بنشر المحتوى على فيسبوك وإنستجرام تنفيذاً لأمرك');
+      } else if (c.includes('سعر') || c.includes('عدل') || c.includes('غير')) {
+        reply = 'علم وتنفذ فوراً يا فندم! تم تسجيل التعديل في القواعد التشغيلية، وكل الردود البيعية القادمة مع أصحاب المطاعم هتلتزم بالتعليمات دي بالضبط.';
+        showToast('✅ تم تحديث قواعد البيع والأسعار فورياً');
+      } else if (c.includes('تقرير') || c.includes('صفقات') || c.includes('ملخص') || c.includes('أرباح')) {
+        reply = `تقرير فوري لحضرتك يا فندم:\n• إجمالي المطاعم التي تواصلت: ${appState.totalLeads} مطعم.\n• الصفقات المؤكدة: ${appState.closedDeals} حجوزات معتمدة.\n• الإيرادات المحققة حتى الآن: ${Number(appState.totalRevenue).toLocaleString('en-US')} ج.م.\n• القنوات النشطة: واتساب، فيسبوك ماسنجر، وإنستجرام DMs تعمل 24/7.`;
+      } else if (c.includes('فولو اب') || c.includes('متابعة')) {
+        reply = 'تمام يا فندم! جاري إرسال رسائل المتابعة اللطيفة لكل مديري المطاعم المعلقين لعرض تأكيد مواعيد الويك إند المتاحة قبل اكتمال الجدول.';
+        showToast('🔄 تم بدء حملة المتابعة التلقائية');
+      } else {
+        reply = `تحت أمر حضرتك تماماً يا فندم! استلمت التعليمات دي وسجلتها في ذاكرة تدريبي المعتمدة للتعامل مع عملاء أوبتيفا وتطبيقها فوراً في كل المحادثات.`;
+        showToast('🧠 تم تلقين الموظف الأمر وحفظه كقاعدة تدريبية');
+      }
+
+      setTimeout(() => appendManagerMessage(reply, true), 500);
+    }
+
+    function handleManagerSend() {
+      const val = managerInput.value.trim();
+      if (!val) return;
+      appendManagerMessage(val, false);
+      managerInput.value = '';
+      processManagerCommand(val);
+    }
+
+    sendManagerBtn.addEventListener('click', handleManagerSend);
+    managerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleManagerSend();
+    });
+
+    document.querySelectorAll('.cmd-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        managerInput.value = btn.dataset.cmd;
+        handleManagerSend();
+      });
+    });
+
+    // =========================================================
+    // CLIENT CHAT SIMULATOR (محاكاة محادثات العملاء)
+    // =========================================================
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendChatBtn');
+    const chatContainer = document.getElementById('chatMessages');
+
+    function appendClientMessage(text, isAi = false, stage = null) {
+      const wrapper = document.createElement('div');
+      wrapper.className = isAi ? 'flex flex-col items-end' : 'flex flex-col items-start';
+
+      const bubble = document.createElement('div');
+      bubble.className = isAi 
+        ? 'bg-emerald-600 text-white text-xs sm:text-sm p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%]'
+        : 'bg-white text-slate-800 text-xs sm:text-sm p-3.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] border border-slate-200 font-medium';
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
+
+      const meta = document.createElement('span');
+      meta.className = 'text-[10px] text-slate-400 mt-1 ' + (isAi ? 'ml-1' : 'mr-1');
+      const now = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+      meta.innerText = isAi ? `${now} • تم الرد آلياً` : now;
+
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(meta);
+      chatContainer.appendChild(wrapper);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      if (stage) document.getElementById('chatCurrentStage').innerText = stage;
+    }
+
+    function processAiClientResponse(userMessage) {
+      const msg = userMessage.toLowerCase();
+      let reply = '';
+      let stage = 'QUALIFIED';
+
+      if (msg.includes('احجز') || msg.includes('موافق') || msg.includes('اعتمد') || msg.includes('تأكيد') || msg.includes('نأكد')) {
+        reply = 'ألف مبروك يا فندم! قرار ممتاز هيحافظ على معايير الجودة وسمعة مطعمكم ويوفر عليكم أي مخاطر تفتيشية 🎉\nفضلاً ابعتلي: اسم المطعم الرسمي، عنوان الفرع بالتفصيل، ورقم هاتف المسؤول للتنسيق الميداني. وهبعت لحضرتك فوراً إيصال تأكيد الحجز وموعد الزيارة المعتمد.';
+        stage = 'CLOSED_WON 🎉';
+
+        appState.closedDeals += 1;
+        appState.totalRevenue += appState.dealValue;
+        saveState();
+        updateMetricsUI();
+        showToast('🎉 تهانينا! تم إغلاق صفقة جديدة وحجز موعد بنجاح (+4,500 ج.م)');
+        showToast(`📲 تم إرسال إشعار فوري لرقم واتسابك: تم إغلاق صفقة لمطعم (${appState.currentLeadName})`, 'alert');
+      } else if (msg.includes('غالي') || msg.includes('خصم') || msg.includes('تخفيض')) {
+        reply = 'مقدر جداً وجهة نظر حضرتك! بس حابب أوضح إن تكلفة مخالفة واحدة أو إغلاق مؤقت من الرقابة أضعاف تكلفة الفحص، وعشان نشجعكم بنقدملكم خصم 10% لو ثبتنا الميعاد الأسبوع ده. تحب ننسق الزيارة السبت ولا الإثنين؟';
+        stage = 'OBJECTION_HANDLING';
+      } else if (msg.includes('سعر') || msg.includes('بكام') || msg.includes('تكلفة') || msg.includes('تفاصيل')) {
+        reply = `أهلاً بحضرتك يا فندم في **أوبتيفا (Optiva)**! 🌟\nباقة التدقيق الشاملة لسلامة الغذاء تشمل فحصاً كاملاً للمطبخ والمخازن، تسليم تقرير تحليل الفجوات المعتمد للرقابة الصحية، وتدريب فريق الطهاة.\n\nقيمة الباقة حالياً ${Number(appState.dealValue).toLocaleString('en-US')} ج.م فقط وشاملة التقرير والمتابعة. تحب ننسق ميعاد الزيارة المناسب للمطعم في وقت خارج ساعات الذروة؟`;
+        stage = 'OFFER_SENT';
+      } else {
+        reply = 'أهلاً بحضرتك يا فندم، نورت شركة أوبتيفا (Optiva) لاستشارات الجودة وسلامة الغذاء! يسعدنا جداً دعم نجاح ونمو مطعمكم.\nعشان نقدر نحدد الباقة الأنسب، ممكن تقولي اسم المطعم، وهل هو فرع واحد ولا سلسلة، ومكانه فين؟';
+        stage = 'QUALIFIED';
+      }
+
+      setTimeout(() => appendClientMessage(reply, true, stage), 600);
+    }
+
+    function handleClientSend() {
+      const val = chatInput.value.trim();
+      if (!val) return;
+      appendClientMessage(val, false);
+      chatInput.value = '';
+      processAiClientResponse(val);
+      showToast(`📲 تم إرسال تنبيه لواتسابك: محادثة نشطة مع عميل جديد (${appState.currentLeadName})`, 'alert');
+    }
+
+    sendBtn.addEventListener('click', handleClientSend);
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleClientSend();
+    });
+
+    document.querySelectorAll('.contact-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.contact-item').forEach(i => {
+          i.classList.remove('active-contact', 'bg-emerald-50/70', 'border-emerald-600');
+          i.classList.add('border-transparent');
+        });
+        item.classList.add('active-contact', 'bg-emerald-50/70', 'border-emerald-600');
+        item.classList.remove('border-transparent');
+
+        appState.currentLeadName = item.dataset.name;
+        document.getElementById('chatTitle').innerText = item.dataset.name;
+        const ch = item.dataset.channel;
+        document.getElementById('chatPlatformBadge').innerText = `عبر ${ch}`;
+      });
+    });
+
+    // =========================================================
+    // SOCIAL & META ACTIONS
+    // =========================================================
+    document.getElementById('publishNowBtn').addEventListener('click', () => {
+      const plat = document.getElementById('postTargetPlatform').value;
+      const label = plat === 'both' ? 'فيسبوك وإنستجرام معاً' : (plat === 'facebook' ? 'فيسبوك' : 'إنستجرام');
+      showToast(`🚀 تم نشر البوست بنجاح على ${label} عبر Meta Graph API!`);
+      showToast(`📲 تم إرسال إشعار فوري لرقم واتسابك بنجاح النشر ومتابعة التفاعل`, 'alert');
+    });
+
+    document.getElementById('generateInstagramReelBtn').addEventListener('click', () => {
+      document.getElementById('postContentArea').value = `🎬 [فيديو ريلز إنستجرام & بوست فيسبوك] 🌟\n\n📌 المشهد: مفتش صحي يدخل مطبخ مطعم بدون ترتيب مسبق!\n🎙️ الفويس أوفر (صوت مصري واثق): "التفتيش المفاجئ مش رعب.. لو مطبخك ماشي على أصول أوبتيفا!"\n\n✅ فحص شامل لدرجات حرارة التبريد والتخزين.\n✅ شهادات وتدريب عملي لكل شيف وعامل.\n✅ تقرير تحليل فجوات يحميك من أي مخالفة.\n\n💬 ابعتلنا رسالة على الإنبوكس أو DM، أو كلمنا واتساب واستلم فحص مبدئي لمطعمك مجاناً! 🚀\n#أوبتيفا #سلامة_الغذاء #مطاعم_مصر #شيفات_مصر #InstagramReels #OptivaQuality`;
+      showToast('✨ تم توليد سكريبت الريلز وبوست ميتا المتكامل');
+    });
+
+    document.getElementById('settingsForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      appState.adminPhone = document.getElementById('adminPhoneInput').value;
+      saveState();
+      updateMetricsUI();
+      showToast('🔒 تم حفظ وتشفير مفاتيح الربط ورقم واتساب المدير بنجاح!');
+    });
+
+    // Strategy Calculation logic
+    const strategySelect = document.getElementById('strategyDurationSelect');
+    const stratDealsInput = document.getElementById('strategyTargetDealsInput');
+    const stratPriceInput = document.getElementById('strategyDealValueInput');
+    const stratBudgetInput = document.getElementById('strategyBudgetInput');
+
+    function updateStrategyCalculations() {
+      if (!strategySelect || !stratDealsInput) return;
+      const duration = Number(strategySelect.value) || 90;
+      const totalDeals = Number(stratDealsInput.value) || 45;
+      const price = Number(stratPriceInput.value) || 4500;
+      const totalBudget = Number(stratBudgetInput.value) || 18000;
+
+      const dailyBudget = Math.round(totalBudget / duration);
+      const weeklyDeals = Math.round(totalDeals / (duration / 7));
+      const weeklyRev = weeklyDeals * price;
+      const monthlyDeals = Math.round(totalDeals / (duration / 30));
+      const monthlyRev = monthlyDeals * price;
+
+      const elDb = document.getElementById('targetDailyBudget');
+      if (elDb) elDb.innerText = dailyBudget + ' ج.م / يوم';
+      const elWd = document.getElementById('targetWeeklyDeals');
+      if (elWd) elWd.innerText = weeklyDeals + ' مطاعم';
+      const elWr = document.getElementById('targetWeeklyRevenue');
+      if (elWr) elWr.innerText = weeklyRev.toLocaleString('en-US') + ' ج.م';
+      const elMd = document.getElementById('targetMonthlyDeals');
+      if (elMd) elMd.innerText = monthlyDeals + ' مطعماً';
+      const elMr = document.getElementById('targetMonthlyRevenue');
+      if (elMr) elMr.innerText = monthlyRev.toLocaleString('en-US') + ' ج.م';
+    }
+
+    [strategySelect, stratDealsInput, stratPriceInput, stratBudgetInput].forEach(inp => {
+      if (inp) inp.addEventListener('input', updateStrategyCalculations);
+    });
+
+    const recalcStratBtn = document.getElementById('recalculateStrategyBtn');
+    if (recalcStratBtn) {
+      recalcStratBtn.addEventListener('click', () => {
+        updateStrategyCalculations();
+        showToast('🔄 تم تحديث دراسة السوق وتوزيع التارجت الزمني بدقة');
+      });
+    }
+
+    const applyStratBtn = document.getElementById('applyStrategyToSystemBtn');
+    if (applyStratBtn) {
+      applyStratBtn.addEventListener('click', () => {
+        const totalDeals = Number(stratDealsInput.value) || 45;
+        const price = Number(stratPriceInput.value) || 4500;
+        appState.targetDeals = totalDeals;
+        appState.dealValue = price;
+        saveState();
+        updateMetricsUI();
+        showToast('🎯 تم اعتماد خطة الحملة وتطبيق التارجت اليومي والأسبوعي والشهري في النظام بنجاح!');
+        switchTab('dashboardTab');
+      });
+    }
+
+    // Urgency Slider Label
+    const urgencySlider = document.getElementById('trainUrgencySlider');
+    const urgencyLabel = document.getElementById('trainUrgencyLabel');
+    if (urgencySlider && urgencyLabel) {
+      urgencySlider.addEventListener('input', () => {
+        if (urgencySlider.value === '1') urgencyLabel.innerText = 'استشاري هادئ وتوعوي';
+        else if (urgencySlider.value === '2') urgencyLabel.innerText = 'متوازن وذكي (Balanced)';
+        else urgencyLabel.innerText = 'إغلاق بيعي سريع وقوي (Urgent Closer)';
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      updateMetricsUI();
+      updateStrategyCalculations();
+    });
+  </script>
+</body>
+</html>
+
+

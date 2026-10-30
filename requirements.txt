@@ -1,0 +1,4 @@
+# Optiva AI Employee requirements
+# All core dependencies use standard Python libraries.
+
+
